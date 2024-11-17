@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TODOリストアプリ</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <div class="app-container">
+    <h1>TODOリスト</h1>
+    <form id="todo-form">
+      <textarea id="todo-input" placeholder="TODOを追加" required></textarea>
+      <button type="submit">追加</button>
+    </form>
+    <h2>未完了のTODO</h2>
+    <div id="uncompleted-todo-list"></div>
+    <h2>完了済みのTODO</h2>
+    <div id="completed-todo-list"></div>
+  </div>
+  <script type="module" src="/main.js"></script>
+</body>
+
+</html>

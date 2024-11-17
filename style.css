@@ -1,0 +1,75 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 20px;
+}
+
+.app-container {
+  max-width: 50rem;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#todo-form {
+  display: flex;
+  margin-bottom: 20px;
+  align-items: flex-start;
+}
+
+#todo-input {
+  padding: 10px;
+  width: 70%;
+  height: 50px;
+  /* 初期の高さを指定 */
+  margin-right: 10px;
+  resize: vertical;
+  /* 垂直方向のリサイズのみ許可 */
+  box-sizing: border-box;
+  /* パディングとボーダーを幅に含める */
+}
+
+
+button {
+  padding: 10px 20px;
+}
+
+.todo-card {
+  border-radius: .25rem;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  margin-bottom: 10px;
+  padding: 0 0 0 20px;
+  display: flex;
+  align-items: stretch;
+}
+
+.todo-text {
+  flex-grow: 1;
+  /* テキストがカードの大部分を占めるようにする */
+  /* チェックボックスとの間隔 */
+  margin: .25rem 10px;
+  padding: 1rem .5rem;
+}
+
+.delete-btn {
+  background: #ff4444;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.todo-completed {
+  background-color: #e0e0e0;
+  /* グレーの背景色 */
+}
+
+input[type="checkbox"] {
+  cursor: pointer;
+  width: 1.25rem;
+  /* チェックボックスにカーソルが合わさった時のスタイルをポインターに */
+}
