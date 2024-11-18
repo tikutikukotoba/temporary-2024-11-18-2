@@ -32,9 +32,12 @@ const createTodoCard = (todo, isCompleted) => {
   todoCard.classList.add('todo-card');
   if (isCompleted) todoCard.classList.add('todo-completed');
 
+  // 改行対応で改行文字をHTMLの<br>に変換
+  const formattedText = todo.text.replace(/\n/g, '<br>');
+
   todoCard.innerHTML = `
     <input type="checkbox" ${isCompleted ? 'checked' : ''}>
-    <span class="todo-text" data-id="${todo.id}">${todo.text}</span>
+    <span class="todo-text" data-id="${todo.id}">${formattedText}</span>
     <button class="delete-btn">削除</button>
   `;
 
