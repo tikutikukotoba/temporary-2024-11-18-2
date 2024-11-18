@@ -37,7 +37,7 @@ const createTodoCard = (todo, isCompleted) => {
 
   todoCard.innerHTML = `
     <input type="checkbox" ${isCompleted ? 'checked' : ''}>
-    <span class="todo-text" data-id="${todo.id}">${formattedText}</span>
+    <span class="todo-text" data-id="${todo.id}" contenteditable="true">${formattedText}</span>
     <button class="delete-btn">削除</button>
   `;
 
@@ -52,6 +52,10 @@ const createTodoCard = (todo, isCompleted) => {
       deleteTodo(todo.id, isCompleted);
     }
   });
+
+  // テキスト編集（blurイベントで保存）
+  const todoText = todoCard.querySelector('.todo-text');
+  todoText.addEventListener('blur', () => updateTodoText(todo.id, isCompleted, todoText));
 
   return todoCard;
 };
@@ -88,6 +92,19 @@ const deleteTodo = (id, isCompleted) => {
   }
   saveTodos(todos);
   renderTodos();
+};
+
+// TODOテキストの更新
+const updateTodoText = (id, isCompleted, textNode) => {
+  const newText = textNode.innerText.trim();
+  const todos = getTodos();
+  const targetList = isCompleted ? todos.completed : todos.uncompleted;
+  const todo = targetList.find(todo => todo.id === id);
+
+  if (todo) {
+    todo.text = newText;
+    saveTodos(todos);
+  }
 };
 
 // フォーム送信イベント
