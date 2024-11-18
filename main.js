@@ -44,7 +44,11 @@ const createTodoCard = (todo, isCompleted) => {
 
   // 削除ボタンのイベント
   const deleteBtn = todoCard.querySelector('.delete-btn');
-  deleteBtn.addEventListener('click', () => deleteTodo(todo.id, isCompleted));
+  deleteBtn.addEventListener('click', () => {
+    if (confirm('このTODOを削除してもよろしいですか？')) {
+      deleteTodo(todo.id, isCompleted);
+    }
+  });
 
   return todoCard;
 };
