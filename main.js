@@ -52,14 +52,20 @@ const renderTodos = () => {
 
 // TODOを追加
 todoForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const text = todoInput.value.trim();
-  if (!text) return;
+  e.preventDefault();  // フォームのデフォルトの動作を無効化
+  const text = todoInput.value.trim();  // 入力されたテキストを取得
 
-  todos.push({ id: Date.now(), text, completed: false });
+  if (text === '') return;  // 空文字の場合は処理しない
+
+  // 新しいTODOオブジェクトを作成
+  const newTodo = { id: Date.now(), text, completed: false };
+  
+  // TODOリストに追加し、ローカルストレージに保存
+  todos.push(newTodo);
   saveTodos(todos);
-  todoInput.value = '';
-  renderTodos();
+
+  todoInput.value = '';  // 入力欄を空にする
+  renderTodos();  // TODOリストを再描画
 });
 
 // TODOの完了状態を切り替え
