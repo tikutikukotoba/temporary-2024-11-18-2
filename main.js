@@ -1,98 +1,122 @@
-// ローカルストレージからTODOを取得
-const getTodos = () => JSON.parse(localStorage.getItem('todos')) || [];
+const getTodos = () => {
+  const todos = localStorage.getItem('todos');
+  return todos ? JSON.parse(todos) : { uncompleted: [], completed: [] };
+};
 
-// ローカルストレージにTODOを保存
-const saveTodos = (todos) => localStorage.setItem('todos', JSON.stringify(todos));
+const saveTodos = (todos) => {
+  localStorage.setItem('todos', JSON.stringify(todos));
+};
 
-// 初期化
-let todos = getTodos();
-
-// DOM要素の取得
-const todoForm = document.getElementById('todo-form');
-const todoInput = document.getElementById('todo-input');
-const uncompletedList = document.getElementById('uncompleted-todo-list');
-const completedList = document.getElementById('completed-todo-list');
-
-// TODOをDOMに描画
 const renderTodos = () => {
+  const { uncompleted, completed } = getTodos();
+
+  // 未完了TODO描画
+  const uncompletedList = document.getElementById('uncompleted-todo-list');
   uncompletedList.innerHTML = '';
+  uncompleted.forEach(todo => {
+    const todoCard = createTodoCard(todo, false);
+    uncompletedList.appendChild(todoCard);
+  });
+
+  // 完了済みTODO描画
+  const completedList = document.getElementById('completed-todo-list');
   completedList.innerHTML = '';
-
-  todos.forEach((todo) => {
-    const todoCard = document.createElement('div');
-    todoCard.className = `todo-card ${todo.completed ? 'todo-completed' : ''}`;
-
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.checked = todo.completed;
-    checkbox.addEventListener('change', () => toggleTodoCompletion(todo.id));
-
-    const todoText = document.createElement('span');
-    todoText.className = 'todo-text';
-    todoText.contentEditable = true;
-    todoText.textContent = todo.text;
-    todoText.addEventListener('input', () => editTodoText(todo.id, todoText.textContent));
-
-    const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'delete-btn';
-    deleteBtn.textContent = '削除';
-    deleteBtn.addEventListener('click', () => deleteTodo(todo.id));
-
-    todoCard.appendChild(checkbox);
-    todoCard.appendChild(todoText);
-    todoCard.appendChild(deleteBtn);
-
-    if (todo.completed) {
-      completedList.appendChild(todoCard);
-    } else {
-      uncompletedList.appendChild(todoCard);
-    }
+  completed.forEach(todo => {
+    const todoCard = createTodoCard(todo, true);
+    completedList.appendChild(todoCard);
   });
 };
 
-// TODOを追加
-todoForm.addEventListener('submit', (e) => {
-  e.preventDefault();  // フォームのデフォルトの動作を無効化
-  const text = todoInput.value.trim();  // 入力されたテキストを取得
+const createTodoCard = (todo, isCompleted) => {
+  const todoCard = document.createElement('div');
+  todoCard.classList.add('todo-card');
+  if (isCompleted) todoCard.classList.add('todo-completed');
 
-  if (text === '') return;  // 空文字の場合は処理しない
+  // 改行対応で改行文字をHTMLの<br>に変換
+  const formattedText = todo.text.replace(/\n/g, '<br>');
 
-  // 新しいTODOオブジェクトを作成
-  const newTodo = { id: Date.now(), text, completed: false };
-  
-  // TODOリストに追加し、ローカルストレージに保存
-  todos.push(newTodo);
-  saveTodos(todos);
+  todoCard.innerHTML = `
+    <input type="checkbox" ${isCompleted ? 'checked' : ''}>
+    <span class="todo-text" data-id="${todo.id}" contenteditable="true">${formattedText}</span>
+    <button class="delete-btn">削除</button>
+  `;
 
-  todoInput.value = '';  // 入力欄を空にする
-  renderTodos();  // TODOリストを再描画
-});
+  // チェックボックスのイベント
+  const checkbox = todoCard.querySelector('input[type="checkbox"]');
+  checkbox.addEventListener('change', () => toggleTodoCompletion(todo.id, isCompleted));
 
-// TODOの完了状態を切り替え
-const toggleTodoCompletion = (id) => {
-  todos = todos.map((todo) => 
-    todo.id === id ? { ...todo, completed: !todo.completed } : todo
-  );
+  // 削除ボタンのイベント
+  const deleteBtn = todoCard.querySelector('.delete-btn');
+  deleteBtn.addEventListener('click', () => {
+    if (confirm('このTODOを削除してもよろしいですか？')) {
+      deleteTodo(todo.id, isCompleted);
+    }
+  });
+
+  // テキスト編集（blurイベントで保存）
+  const todoText = todoCard.querySelector('.todo-text');
+  todoText.addEventListener('blur', () => updateTodoText(todo.id, isCompleted, todoText));
+
+  return todoCard;
+};
+
+const addTodo = (text) => {
+  const todos = getTodos();
+  const newTodo = { id: crypto.randomUUID(), text };
+  todos.uncompleted.push(newTodo);
   saveTodos(todos);
   renderTodos();
 };
 
-// TODOのテキストを編集
-const editTodoText = (id, newText) => {
-  todos = todos.map((todo) =>
-    todo.id === id ? { ...todo, text: newText } : todo
-  );
+const toggleTodoCompletion = (id, isCompleted) => {
+  const todos = getTodos();
+  if (isCompleted) {
+    const todoIndex = todos.completed.findIndex(todo => todo.id === id);
+    const [todo] = todos.completed.splice(todoIndex, 1);
+    todos.uncompleted.push(todo);
+  } else {
+    const todoIndex = todos.uncompleted.findIndex(todo => todo.id === id);
+    const [todo] = todos.uncompleted.splice(todoIndex, 1);
+    todos.completed.push(todo);
+  }
   saveTodos(todos);
+  renderTodos();
 };
 
-// TODOを削除
-const deleteTodo = (id) => {
-  if (confirm('このTODOを削除してもよろしいですか？')) {
-    todos = todos.filter((todo) => todo.id !== id);
+const deleteTodo = (id, isCompleted) => {
+  const todos = getTodos();
+  if (isCompleted) {
+    todos.completed = todos.completed.filter(todo => todo.id !== id);
+  } else {
+    todos.uncompleted = todos.uncompleted.filter(todo => todo.id !== id);
+  }
+  saveTodos(todos);
+  renderTodos();
+};
+
+// TODOテキストの更新
+const updateTodoText = (id, isCompleted, textNode) => {
+  const newText = textNode.innerText.trim();
+  const todos = getTodos();
+  const targetList = isCompleted ? todos.completed : todos.uncompleted;
+  const todo = targetList.find(todo => todo.id === id);
+
+  if (todo) {
+    todo.text = newText;
     saveTodos(todos);
-    renderTodos();
   }
 };
+
+// フォーム送信イベント
+document.getElementById('todo-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const input = document.getElementById('todo-input');
+  const text = input.value.trim();
+  if (text) {
+    addTodo(text);
+    input.value = '';
+  }
+});
 
 // 初期描画
 renderTodos();
